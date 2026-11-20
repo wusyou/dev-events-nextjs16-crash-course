@@ -1,16 +1,19 @@
 import EventCard from "@/components/EventCard";
 import ExploreBtn from "@/components/ExploreBtn";
 import { IEvent } from "@/database";
+import Event from "@/database/event.model";
+import connectToDatabase from "@/lib/mongodb";
 import { cacheLife, cacheTag } from "next/cache";
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const Page = async () => {
   "use cache";
   cacheLife("hours");
   cacheTag("events");
-  const response = await fetch(`${BASE_URL}/api/events`);
-  const { events } = await response.json();
+
+  await connectToDatabase();
+  const events: IEvent[] = JSON.parse(
+    JSON.stringify(await Event.find().sort({ createdAt: -1 }).lean()),
+  );
 
   return (
     <section>
@@ -28,10 +31,9 @@ const Page = async () => {
         <h3>Featured Events</h3>
 
         <ul className="events">
-          {events &&
-            events.length > 0 &&
+          {events.length > 0 &&
             events.map((event: IEvent) => (
-              <li className="list-none" key={event.title}>
+              <li className="list-none" key={event.slug}>
                 <EventCard {...event} />
               </li>
             ))}
