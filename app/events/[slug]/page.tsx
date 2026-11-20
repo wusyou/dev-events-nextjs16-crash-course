@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { cacheLife } from "next/cache";
+import { Suspense } from "react";
 import Image from "next/image";
 import BookEvent from "@/components/BookEvent";
 import { getSimiliarEventBySlug } from "@/lib/actions/event.action";
@@ -44,13 +44,11 @@ const EventTags = ({ tags }: { tags: string[] }) => (
   </div>
 );
 
-const EventDetailsPage = async ({
+const EventDetails = async ({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) => {
-  "use cache";
-  cacheLife("hours");
   const { slug } = await params;
   const request = await fetch(`${BASE_URL}/api/events/${slug}`);
   const {
@@ -75,8 +73,6 @@ const EventDetailsPage = async ({
   const bookings = 10;
 
   const similarEvents: IEvent[] = await getSimiliarEventBySlug(slug);
-
-  console.log(similarEvents);
 
   return (
     <section id="event">
@@ -105,19 +101,15 @@ const EventDetailsPage = async ({
             <h2>Event Details</h2>
             <EventDetailItem
               icon="/icons/calendar.svg"
-              alt="calender"
+              alt="calendar"
               label={date}
             />
             <EventDetailItem icon="/icons/clock.svg" alt="clock" label={time} />
-            <EventDetailItem
-              icon="/icons/pin.svg"
-              alt="pinr"
-              label={location}
-            />
+            <EventDetailItem icon="/icons/pin.svg" alt="pin" label={location} />
             <EventDetailItem icon="/icons/mode.svg" alt="mode" label={mode} />
             <EventDetailItem
               icon="/icons/audience.svg"
-              alt="audiencer"
+              alt="audience"
               label={audience}
             />
           </section>
@@ -161,6 +153,18 @@ const EventDetailsPage = async ({
         </div>
       )}
     </section>
+  );
+};
+
+const EventDetailsPage = ({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) => {
+  return (
+    <Suspense fallback={<p className="text-center mt-20">Loading event...</p>}>
+      <EventDetails params={params} />
+    </Suspense>
   );
 };
 
