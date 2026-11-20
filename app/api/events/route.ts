@@ -2,6 +2,7 @@ import connectToDatabase from "@/lib/mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import Event from "@/database/event.model";
 import { v2 as cloudinary } from "cloudinary";
+import { revalidateTag } from "next/cache";
 
 export async function POST(req: NextRequest) {
   try {
@@ -56,16 +57,22 @@ export async function POST(req: NextRequest) {
       agenda: agenda,
     });
 
+    // Expire the cached event lists right away so the new event shows up.
+    revalidateTag("events", { expire: 0 });
+
     return NextResponse.json(
       { message: "Event created successfuly", event: createdEvent },
       { status: 201 },
     );
   } catch (e) {
     console.error(e);
-    return NextResponse.json({
-      message: "Event Creation Failed",
-      error: e instanceof Error ? e.message : "Unknown",
-    });
+    return NextResponse.json(
+      {
+        message: "Event Creation Failed",
+        error: e instanceof Error ? e.message : "Unknown",
+      },
+      { status: 500 },
+    );
   }
 }
 
