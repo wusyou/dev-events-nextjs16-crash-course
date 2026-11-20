@@ -2,22 +2,24 @@ import Link from "next/link";
 import { cacheLife, cacheTag } from "next/cache";
 import EventCard from "@/components/EventCard";
 import { IEvent } from "@/database";
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+import Event from "@/database/event.model";
+import connectToDatabase from "@/lib/mongodb";
 
 const EventsPage = async () => {
   "use cache";
   cacheLife("hours");
   cacheTag("events");
 
-  const response = await fetch(`${BASE_URL}/api/events`);
-  const { events }: { events?: IEvent[] } = await response.json();
+  await connectToDatabase();
+  const events: IEvent[] = JSON.parse(
+    JSON.stringify(await Event.find().sort({ createdAt: -1 }).lean()),
+  );
 
   return (
     <section className="space-y-7">
       <h1>All Events</h1>
 
-      {events && events.length > 0 ? (
+      {events.length > 0 ? (
         <ul className="events">
           {events.map((event) => (
             <li className="list-none" key={event.slug}>
