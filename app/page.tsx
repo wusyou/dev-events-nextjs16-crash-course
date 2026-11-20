@@ -1,13 +1,14 @@
 import EventCard from "@/components/EventCard";
 import ExploreBtn from "@/components/ExploreBtn";
 import { IEvent } from "@/database";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const Page = async () => {
   "use cache";
   cacheLife("hours");
+  cacheTag("events");
   const response = await fetch(`${BASE_URL}/api/events`);
   const { events } = await response.json();
 
@@ -22,7 +23,8 @@ const Page = async () => {
 
       <ExploreBtn />
 
-      <div className="mt-20 space-y-7">
+      {/* scroll-mt keeps the heading from hiding under the sticky navbar */}
+      <div id="events" className="mt-20 space-y-7 scroll-mt-24">
         <h3>Featured Events</h3>
 
         <ul className="events">

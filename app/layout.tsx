@@ -30,6 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         "min-h-screen",
         "h-full",
         "antialiased",
+        "scroll-smooth",
         schibstedGrotesk.variable,
         martianMono.variable,
         "font-sans",
@@ -38,7 +39,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <Navbar />
-        <div className="absolute inset-0 top-0 z-[-1] min-h-screen">
+        {/* Fixed so the background fills the screen and stays put while scrolling. */}
+        <div className="fixed inset-0 z-[-1]">
           <LightRays
             raysOrigin="top-center-offset"
             raysColor="#5dfeca"
